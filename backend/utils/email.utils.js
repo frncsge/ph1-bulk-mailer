@@ -24,9 +24,9 @@ export const sendBulkEmails = async ({
 
 // replace placeholders in the template with 
 // the recipient data to make the email message
-const interpolateTemplate = (template, recipients) => {
+const interpolateTemplate = (template, recipient) => {
   return template.replace(/{{(.*?)}}/g, (_, captured) => {
-    return recipients[captured] || "";
+    return recipient[captured] || "";
   });
 };
 
