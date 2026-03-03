@@ -5,6 +5,17 @@ import { authenticateUser } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/email/send", authenticateUser, upload.array("attachments"), sendEmail);
+router.post(
+  "/email/send",
+  authenticateUser,
+  upload.fields([
+    { name: "csv", maxCount: 1 },
+    {
+      name: "attachments",
+      maxCount: 5,
+    },
+  ]),
+  sendEmail,
+);
 
 export default router;
