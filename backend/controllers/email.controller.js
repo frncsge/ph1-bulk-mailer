@@ -3,7 +3,7 @@ import { createEmailAttachments } from "../utils/email.utils.js";
 
 export const sendEmail = async (req, res) => {
   const { sender, recipients, subject, body } = req.body;
-  const attachments = req.files;
+  const files = req.files;
   let parsedRecipients;
 
   // check for missing input fields
@@ -32,7 +32,7 @@ export const sendEmail = async (req, res) => {
       .json({ message: "Each recipient must have their name and email" });
 
   //set up arguments for sending the email
-  const emailAttachments = attachments && createEmailAttachments(attachments);
+  const emailAttachments = files && createEmailAttachments(files);
   const email = {
     sender,
     recipients: parsedRecipients,
