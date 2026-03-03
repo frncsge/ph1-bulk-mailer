@@ -1,46 +1,40 @@
 import { sendBulkEmails } from "../utils/email.utils.js";
-import {
-  createEmailAttachments
-} from "../utils/email.utils.js";
+import { createEmailAttachments } from "../utils/email.utils.js";
+import { parseCsvBuffer } from "../utils/csv.utils.js";
 
 export const sendEmail = async (req, res) => {
-  const { sender, recipients, subject, template } = req.body;
-  const files = req.files;
-  let parsedRecipients;
+  const { sender, subject, template } = req.body;
+  const { csv, attachments } = req.files;
+  const csvFileBuffer = csv?.[0]?.buffer;
 
   // check for missing input fields
-  if (!sender || !recipients || !subject || !template) {
+  if (!sender || !subject || !template)
     return res.status(400).json({ message: "Incomplete input" });
-  }
 
-  // parse recipients field back into an array
-  try {
-    parsedRecipients =
-      typeof recipients === "string" ? JSON.parse(recipients) : recipients;
-  } catch (error) {
-    console.error("Error parsing recipients", error);
-    return res.status(400).json({
-      message: "Invalid recipients format",
-    });
-  }
+  // check if no csv file is uploaded
+  if (!csv || !csvFileBuffer)
+    return res.status(400).json({ message: "CSV file is required" });
+
+  // parse csv buffer into javascript array of objects
+  const recipients = await parseCsvBuffer(csvFileBuffer);
 
   // find recipients that does not have an email
-  const invalidRecipient = parsedRecipients.find(
-    (recipient) => !recipient.email,
-  );
+  const invalidRecipient = recipients.find((recipient) => !recipient.email);
   if (invalidRecipient)
     return res
       .status(400)
       .json({ message: "Each recipient must have their email" });
 
   // convert uploaded files into a format compatible with nodemailer attachments
-  const emailAttachments = files && createEmailAttachments(files);
+  const emailAttachments = attachments
+    ? createEmailAttachments(attachments)
+    : [];
 
   // send email
   try {
     await sendBulkEmails({
       sender,
-      recipients: parsedRecipients,
+      recipients,
       subject,
       template,
       attachments: emailAttachments || [],
