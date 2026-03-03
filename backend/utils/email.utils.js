@@ -4,23 +4,28 @@ export const sendBulkEmails = async ({
   sender,
   recipients = [],
   subject,
-  body,
+  template,
   attachments,
 }) => {
-  for (const recipient of recipients) {
-    const personalizedBody = body.replace(/{{name}}/g, recipient.name);
+  for (const recipient of recipients) { 
 
     const emailMessage = {
       from: `${sender} <${process.env.EMAIL}>`,
       to: recipient.email,
       subject: `${subject}`,
-      html: personalizedBody,
+      html: interpolateTemplate(template, recipient),
       attachments,
     };
 
     await transporter.sendMail(emailMessage);
     console.log(`Email sent to ${recipient.email}`);
   }
+};
+
+const interpolateTemplate = (template, recipients) => {
+  return template.replace(/{{(.*?)}}/g, (_, captured) => {
+    return recipients[captured] || "";
+  });
 };
 
 export const createEmailAttachments = (files) => {
