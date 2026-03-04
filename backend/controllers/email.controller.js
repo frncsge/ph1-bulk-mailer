@@ -6,6 +6,7 @@ export const sendEmail = async (req, res) => {
   const { sender, subject, template } = req.body;
   const { csv, attachments } = req.files;
   const csvFileBuffer = csv?.[0]?.buffer;
+  const csvMimeType = csv?.[0]?.mimetype;
 
   // check for missing input fields
   if (!sender || !subject || !template)
@@ -14,6 +15,10 @@ export const sendEmail = async (req, res) => {
   // check if no csv file is uploaded
   if (!csv || !csvFileBuffer)
     return res.status(400).json({ message: "CSV file is required" });
+
+  if (csvMimeType !== "text/csv") {
+    return res.status(400).json({ message: "Please upload a CSV file" });
+  }
 
   // parse csv buffer into javascript array of objects
   const recipients = await parseCsvBuffer(csvFileBuffer);
@@ -32,7 +37,7 @@ export const sendEmail = async (req, res) => {
 
   // send email
   try {
-    await sendBulkEmails({
+    const { successful, failed } = await sendBulkEmails({
       sender,
       recipients,
       subject,
@@ -40,7 +45,9 @@ export const sendEmail = async (req, res) => {
       attachments: emailAttachments || [],
     });
 
-    res.status(200).json({ message: "Emails sent" });
+    res
+      .status(200)
+      .json({ message: "Sending email process completed", successful, failed });
   } catch (error) {
     console.error("Error sending email", error);
     res.status(500).json({
