@@ -8,13 +8,7 @@ const router = express.Router();
 router.post(
   "/email/send",
   authenticateUser,
-  upload.fields([
-    { name: "csv", maxCount: 1 },
-    {
-      name: "attachments",
-      maxCount: 5,
-    },
-  ]),
+  upload.array("attachments"),
   sendEmail,
 );
 
