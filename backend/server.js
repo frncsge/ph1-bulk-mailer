@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import emailRoutes from "./routes/email.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import uploadRutes from "./routes/upload.routes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(cookieParser());
 //routes
 app.use("/api/auth", authRoutes);
 app.use("/api", emailRoutes);
+app.use("/api", uploadRutes);
 
 //default, for checking only
 app.get("/", (req, res) => {
