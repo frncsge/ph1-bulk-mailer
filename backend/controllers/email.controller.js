@@ -1,27 +1,23 @@
 import { sendBulkEmails } from "../utils/email.utils.js";
 import { createEmailAttachments } from "../utils/email.utils.js";
-import { parseCsvBuffer } from "../utils/csv.utils.js";
 
 export const sendEmail = async (req, res) => {
-  const { sender, subject, template } = req.body;
-  const { csv, attachments } = req.files;
-  const csvFileBuffer = csv?.[0]?.buffer;
-  const csvMimeType = csv?.[0]?.mimetype;
+  let { sender, subject, template, recipients } = req.body;
+  const attachments = req.files;
 
   // check for missing input fields
   if (!sender || !subject || !template)
     return res.status(400).json({ message: "Incomplete input" });
 
-  // check if no csv file is uploaded
-  if (!csv || !csvFileBuffer)
-    return res.status(400).json({ message: "CSV file is required" });
+  if (!recipients)
+    return res
+      .status(400)
+      .json({ message: "No email recipient is uploaded or found" });
 
-  if (csvMimeType !== "text/csv") {
-    return res.status(400).json({ message: "Please upload a CSV file" });
+  // parse recipients if they are a string
+  if (typeof recipients === "string") {
+    recipients = JSON.parse(recipients);
   }
-
-  // parse csv buffer into javascript array of objects
-  const recipients = await parseCsvBuffer(csvFileBuffer);
 
   // find recipients that does not have an email
   const invalidRecipient = recipients.find((recipient) => !recipient.email);
