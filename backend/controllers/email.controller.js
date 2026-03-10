@@ -15,9 +15,24 @@ export const sendEmail = async (req, res) => {
       .json({ message: "No email recipient is uploaded or found" });
 
   // parse recipients if they are a string
-  if (typeof recipients === "string") {
-    recipients = JSON.parse(recipients);
+  try {
+    if (typeof recipients === "string") {
+      recipients = JSON.parse(recipients);
+    }
+  } catch (error) {
+    res.status(400).json({ message: "Invalid JSON format for recipients" });
   }
+
+  // check if recipients is an array of object
+  if (
+    !Array.isArray(recipients) ||
+    recipients.every(
+      (recipient) => typeof recipient === "object" && recipient != null,
+    )
+  )
+    return res
+      .status(400)
+      .json({ message: "Recipients must be an array of objects" });
 
   // find recipients that does not have an email
   const invalidRecipient = recipients.find((recipient) => !recipient.email);
