@@ -26,7 +26,7 @@ export const sendEmail = async (req, res) => {
   // check if recipients is an array of object
   if (
     !Array.isArray(recipients) ||
-    recipients.every(
+    !recipients.every(
       (recipient) => typeof recipient === "object" && recipient != null,
     )
   )
