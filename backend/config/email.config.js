@@ -9,6 +9,9 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL,
     pass: process.env.APP_PASSWORD,
   },
+  pool: true,
+  maxConnections: 3,
+  maxMessages: 100,
 });
 
 export default transporter;
