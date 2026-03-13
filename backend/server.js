@@ -27,20 +27,20 @@ app.get("/", (req, res) => {
 });
 
 // Ping the server every 14 minutes to prevent it from sleeping on Render (free tier)
-nodeCron.schedule("*/14 * * * *", () => {
-  https
-    .get("https://ph1-bulk-mailer.onrender.com/", (res) => {
-      console.log(
-        `Server pinged at ${new Date().toLocaleTimeString()}! Response tatus: ${res.statusCode}`,
-      );
-    })
-    .on("error", (error) => {
-      console.error(
-        "An error occured while trying to ping the server:",
-        error.message,
-      );
-    });
-});
+// nodeCron.schedule("*/14 * * * *", () => {
+//   https
+//     .get("https://ph1-bulk-mailer.onrender.com/", (res) => {
+//       console.log(
+//         `Server pinged at ${new Date().toLocaleTimeString()}! Response tatus: ${res.statusCode}`,
+//       );
+//     })
+//     .on("error", (error) => {
+//       console.error(
+//         "An error occured while trying to ping the server:",
+//         error.message,
+//       );
+//     });
+// });
 
 app.listen(PORT, () => {
   console.log("Listening on port", PORT);
